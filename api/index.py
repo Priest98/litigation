@@ -34,47 +34,107 @@ COMPETITOR_PRODUCTS = [
 
 def fetch_patent_from_api(patent_number):
     """
-    Queries the public PatentsView API or falls back to cache.
+    Queries Google Patents for both US and international patents,
+    with fallbacks for grant/application document suffix mismatches.
     """
-    # Clean patent number (digits only)
-    clean_num = ''.join(filter(str.isdigit, patent_number))
-    if not clean_num:
-        clean_num = "10912502"
+    pid = patent_number.strip().upper().replace(" ", "")
+    
+    # If purely numeric, prepend "US" because Google Patents requires the country code
+    if pid.isdigit():
+        pid = "US" + pid
         
-    query = {"patent_number": clean_num}
-    fields = ["patent_number", "patent_title", "patent_abstract", "patent_date"]
-    
-    q_str = urllib.parse.quote(json.dumps(query, separators=(',', ':')))
-    f_str = urllib.parse.quote(json.dumps(fields, separators=(',', ':')))
-    
-    url = f"https://api.patentsview.org/patents/query?q={q_str}&f={f_str}"
-    
-    try:
+    def fetch_url(target_id):
+        url = f"https://patents.google.com/patent/{target_id}/en"
         req = urllib.request.Request(
             url, 
             headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         )
-        with urllib.request.urlopen(req, timeout=8) as response:
-            data = json.loads(response.read().decode('utf-8'))
-            if data.get("patents") and len(data["patents"]) > 0:
-                p = data["patents"][0]
+        try:
+            with urllib.request.urlopen(req, timeout=6) as response:
+                html = response.read().decode('utf-8')
+                soup = BeautifulSoup(html, 'html.parser')
+                
+                # Title
+                title_tag = soup.find('h1', {'id': 'title'})
+                meta_title = soup.find('meta', {'name': 'DC.title'})
+                title = ""
+                if title_tag:
+                    title = title_tag.text.strip()
+                elif meta_title:
+                    title = meta_title.get('content', '').strip()
+                
+                # Date
+                meta_date = soup.find('meta', {'name': 'DC.date'})
+                date = meta_date.get('content', '') if meta_date else ""
+                
+                # Abstract
+                abstract_tag = soup.find(attrs={"itemprop": "abstract"})
+                meta_desc = soup.find('meta', {'name': 'description'})
+                abstract = ""
+                
+                if abstract_tag:
+                    abstract = abstract_tag.text.strip()
+                elif meta_desc:
+                    abstract = meta_desc.get('content', '').strip()
+                    
+                # Clean text
+                abstract = re.sub(r'^Abstract\s*', '', abstract, flags=re.IGNORECASE).strip()
+                title = re.sub(r'\s+', ' ', title).strip()
+                
                 return {
-                    "number": p.get("patent_number"),
-                    "title": p.get("patent_title"),
-                    "abstract": p.get("patent_abstract"),
-                    "date": p.get("patent_date"),
-                    "source": "Live PatentsView API"
+                    "number": target_id,
+                    "title": title,
+                    "abstract": abstract,
+                    "date": date,
+                    "success": bool(title and abstract)
                 }
-    except Exception:
-        pass
+        except Exception:
+            return {"success": False}
+
+    # First attempt: exact match
+    res = fetch_url(pid)
+    if res["success"]:
+        res["source"] = "Google Patents (Direct)"
+        # Format the display number back to user input style if needed
+        res["number"] = patent_number
+        return res
         
-    # Local fallback if API fails or patent number is the default Masimo patent
+    # Second attempt: EP/WO grant fallback (convert trailing B1/B2 to A1)
+    match = re.match(r'^([A-Z]{2,4}\d+)(?:B1|B2|B3|T1|T2|B|T)$', pid)
+    if match:
+        fallback_id = match.group(1) + "A1"
+        res_fallback = fetch_url(fallback_id)
+        if res_fallback["success"]:
+            res_fallback["number"] = patent_number
+            res_fallback["source"] = "Google Patents (A1 Fallback)"
+            return res_fallback
+            
+    # Third attempt: US B2 suffix fallback
+    match_us = re.match(r'^US(\d+)$', pid)
+    if match_us:
+        fallback_id = pid + "B2"
+        res_fallback = fetch_url(fallback_id)
+        if res_fallback["success"]:
+            res_fallback["number"] = patent_number
+            res_fallback["source"] = "Google Patents (US B2 Fallback)"
+            return res_fallback
+
+    # Default fallback to mock data for demo oximeter patent if everything fails
+    if "10912502" in patent_number:
+        return {
+            "number": "10912502",
+            "title": "User-worn device for noninvasive measurement of physiological parameters",
+            "abstract": "A user-worn device configured to noninvasively measure a physiological parameter of a user, such as pulse rate and oxygen saturation. The wearable device includes a pulse oximetry sensor that transmits light of at least two wavelengths through tissue and detects the attenuated light to calculate blood oxygen levels.",
+            "date": "2021-02-09",
+            "source": "Local Secure Cache (API Offline)"
+        }
+
     return {
-        "number": "10912502",
-        "title": "User-worn device for noninvasive measurement of physiological parameters",
-        "abstract": "A user-worn device configured to noninvasively measure a physiological parameter of a user, such as pulse rate and oxygen saturation. The wearable device includes a pulse oximetry sensor that transmits light of at least two wavelengths through tissue and detects the attenuated light to calculate blood oxygen levels.",
-        "date": "2021-02-09",
-        "source": "Local Secure Cache (API Offline)"
+        "number": patent_number,
+        "title": "Unknown Patent Title",
+        "abstract": "Could not retrieve abstract for this patent ID. Please verify the format (e.g. US10912502 or EP3852621B1).",
+        "date": "N/A",
+        "source": "Offline Fallback"
     }
 
 def analyze_infringement_overlap(patent_abstract):
