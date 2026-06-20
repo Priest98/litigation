@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LitiShield IP: Automated Patent Merits & Infringement Radar. Predict litigation success and infringement threats using multi-agent consensus and NLP embeddings.">
+    <title>LitiShield IP: Automated Patent Merits Radar</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-container">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <span class="logo-icon">⚖️</span>
+                <h1 class="logo-title">LitiShield <span class="accent-text">IP</span></h1>
+            </div>
+            <p class="logo-subtitle">Automated Patent Merits & Infringement Radar</p>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section card">
+            <h2 class="section-title-hidden">Analyze Patent</h2>
+            <p class="search-label">Analyze litigation risk by entering a USPTO Patent Number:</p>
+            <form id="analysis-form" class="search-form">
+                <div class="input-wrapper">
+                    <span class="input-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        id="patent-number-input" 
+                        placeholder="e.g. 10912502" 
+                        required 
+                        autocomplete="off"
+                        aria-label="Patent Number Input"
+                    >
+                </div>
+                <button type="submit" id="submit-button" class="btn btn-primary">
+                    <span class="btn-text">Run Radar Analysis</span>
+                    <span class="spinner" id="btn-spinner"></span>
+                </button>
+            </form>
+            <p class="demo-tip">Tip: Press Enter or click Run to analyze default oximeter case (US-10912502).</p>
+        </section>
+
+        <!-- Main Dashboard (Initially Hidden or Mock State) -->
+        <main class="dashboard-grid" id="dashboard-results">
+            <!-- Left Column: Patent & Products -->
+            <div class="grid-column">
+                <!-- Patent Details -->
+                <section class="card patent-details-card">
+                    <div class="card-header">
+                        <span class="card-icon">📄</span>
+                        <h3>Patent Details</h3>
+                    </div>
+                    <div class="patent-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Patent Number</span>
+                            <span class="meta-val" id="res-patent-number">US-10912502</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Issue Date</span>
+                            <span class="meta-val" id="res-patent-date">2021-02-09</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Source Database</span>
+                            <span class="meta-val badge-source" id="res-patent-source">Local Secure Cache</span>
+                        </div>
+                    </div>
+                    <div class="patent-title-box">
+                        <span class="meta-label">Patent Title</span>
+                        <h4 id="res-patent-title">User-worn device for noninvasive measurement of physiological parameters</h4>
+                    </div>
+                    <div class="patent-abstract-box">
+                        <span class="meta-label">Abstract Overview</span>
+                        <p id="res-patent-abstract">A user-worn device configured to noninvasively measure a physiological parameter of a user, such as pulse rate and oxygen saturation. The wearable device includes a pulse oximetry sensor that transmits light of at least two wavelengths through tissue and detects the attenuated light to calculate blood oxygen levels.</p>
+                    </div>
+                </section>
+
+                <!-- Product Overlap -->
+                <section class="card product-overlap-card">
+                    <div class="card-header">
+                        <span class="card-icon">📊</span>
+                        <h3>Product Infringement Overlap</h3>
+                    </div>
+                    <p class="card-desc">Cosine similarity analysis using TF-IDF text vectorization against target commercial products:</p>
+                    <div class="products-list" id="res-products-list">
+                        <!-- Mock products loaded via JS -->
+                        <div class="product-item">
+                            <div class="product-info">
+                                <span class="product-name">Apple Watch Series 9</span>
+                                <span class="threat-badge threat-critical">CRITICAL</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: 34.62%;"></div>
+                            </div>
+                            <span class="score-pct">34.62% Overlap</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Committee & Agents -->
+            <div class="grid-column">
+                <!-- Committee Verdict -->
+                <section class="card verdict-card">
+                    <div class="card-header">
+                        <span class="card-icon">⚖️</span>
+                        <h3>Litigation Committee Verdict</h3>
+                    </div>
+                    
+                    <div class="verdict-display">
+                        <div class="gauge-container">
+                            <svg class="progress-ring" width="120" height="120">
+                                <circle class="progress-ring-bg" stroke="#1f2937" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                <circle class="progress-ring-circle" id="verdict-gauge" stroke="#10b981" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314.15" stroke-dashoffset="123.46"/>
+                            </svg>
+                            <div class="gauge-value" id="res-success-prob">60.7%</div>
+                        </div>
+                        <div class="verdict-info">
+                            <span class="meta-label">Consensus Score</span>
+                            <span class="verdict-badge verdict-reject" id="res-recommendation">REJECT / REVISE CASE</span>
+                            <p class="verdict-verbiage" id="res-verdict-verbiage">Case viability does not meet the minimum funder threshold (70.0%).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Agent Reviews -->
+                <section class="card agents-card">
+                    <div class="card-header">
+                        <span class="card-icon">🧠</span>
+                        <h3>Multi-Agent Diligence Panel</h3>
+                    </div>
+                    <p class="card-desc">Individual agent evaluations contributing to final consensus rating:</p>
+                    <div class="agents-list" id="res-agents-list">
+                        <!-- Loaded via JS -->
+                        <div class="agent-item">
+                            <div class="agent-header">
+                                <span class="agent-title">Prior Art Analyst (Validity)</span>
+                                <span class="agent-weight">Weight: 35%</span>
+                            </div>
+                            <div class="agent-body">
+                                <span class="agent-score">Score: 55%</span>
+                                <p class="agent-finding">Low risk of invalidity. Patent claims are novel and well-distinguished from prior public filings.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+</body>
+</html>
