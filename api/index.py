@@ -3,8 +3,11 @@ import urllib.request
 import urllib.parse
 import json
 import os
+import re
+from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
 
 app = Flask(__name__, static_folder='../public', static_url_path='')
 
@@ -203,8 +206,26 @@ def run_committee_debate(overlap_results):
 def analyze():
     # CORS preflight handling is done automatically by Vercel, but we ensure JSON content
     req_data = request.get_json() or {}
-    patent_number = req_data.get("patent_number", "10912502")
+    patent_number = req_data.get("patent_number", "10912502").strip()
     
+    import re
+    if not re.match(r"^[a-zA-Z0-9\-]+$", patent_number):
+        return jsonify({
+            "patent": {
+                "number": patent_number,
+                "title": "Invalid Format",
+                "abstract": "The patent ID contains invalid characters. Only alphanumeric characters and hyphens are allowed.",
+                "date": "N/A",
+                "source": "Validation Error"
+            },
+            "overlap_results": [],
+            "committee_verdict": {
+                "success_probability": 0.0,
+                "recommendation": "REJECT / REVISE CASE",
+                "agent_reviews": []
+            }
+        }), 400
+        
     patent = fetch_patent_from_api(patent_number)
     overlap = analyze_infringement_overlap(patent["abstract"])
     verdict = run_committee_debate(overlap)
@@ -225,5 +246,5 @@ def index():
     return app.send_static_file('index.html')
 
 if __name__ == '__main__':
-    # Local dev server
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Local dev server (safe binding)
+    app.run(host='127.0.0.1', port=5000, debug=False)

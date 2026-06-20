@@ -119,7 +119,17 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             // 1. Update Patent Info
-            resPatentNum.textContent = `US-${data.patent.number}`;
+            let displayName = data.patent.number;
+            if (/^\d+$/.test(displayName)) {
+                displayName = "US-" + displayName;
+            } else if (/^[A-Za-z]{2}\d+/.test(displayName)) {
+                const country = displayName.slice(0, 2);
+                const rest = displayName.slice(2);
+                if (!rest.startsWith("-")) {
+                    displayName = country.toUpperCase() + "-" + rest;
+                }
+            }
+            resPatentNum.textContent = displayName;
             resPatentDate.textContent = data.patent.date;
             resPatentSource.textContent = data.patent.source;
             resPatentTitle.textContent = data.patent.title;
