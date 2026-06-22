@@ -816,6 +816,117 @@ body {
     transform: scale(1.15);
 }
 
+/* IP Litigation News and Recently Funded Styles */
+.insight-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.insight-item:last-child, .funded-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.insight-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.insight-badge-cat {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    background: rgba(6, 182, 212, 0.06);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.6px;
+}
+
+.insight-date {
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+}
+
+.insight-title {
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin-top: 4px;
+}
+
+.insight-summary {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-top: 6px;
+}
+
+.funded-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.funded-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.funded-id {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+}
+
+.funded-amount {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--accent-emerald);
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+.funded-title {
+    font-size: 0.98rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.funded-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.funded-consensus {
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    font-weight: 600;
+}
+
+.funded-investor {
+    font-weight: 500;
+}
+
 /* Animations */
 @keyframes rotateRing {
     0% { transform: rotate(0deg); }

@@ -243,6 +243,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const islandStatusText = document.getElementById("island-status-text");
     const islandBadge = document.getElementById("island-badge");
 
+    // View toggles
+    const btnRadarView = document.getElementById("btn-radar-view");
+    const btnGlobalInsights = document.getElementById("btn-global-insights");
+    
+    const viewPatentInfo = document.getElementById("view-patent-info");
+    const viewIpNews = document.getElementById("view-ip-news");
+    const viewCommitteeVerdict = document.getElementById("view-committee-verdict");
+    const viewRecentFunded = document.getElementById("view-recent-funded");
+
+    function switchToRadarView() {
+        if (btnRadarView) btnRadarView.classList.add("active");
+        if (btnGlobalInsights) btnGlobalInsights.classList.remove("active");
+        
+        if (viewPatentInfo) viewPatentInfo.style.display = "block";
+        if (viewIpNews) viewIpNews.style.display = "none";
+        
+        if (viewCommitteeVerdict) viewCommitteeVerdict.style.display = "block";
+        if (viewRecentFunded) viewRecentFunded.style.display = "none";
+    }
+
+    function switchToGlobalInsights() {
+        if (btnRadarView) btnRadarView.classList.remove("active");
+        if (btnGlobalInsights) btnGlobalInsights.classList.add("active");
+        
+        if (viewPatentInfo) viewPatentInfo.style.display = "none";
+        if (viewIpNews) viewIpNews.style.display = "block";
+        
+        if (viewCommitteeVerdict) viewCommitteeVerdict.style.display = "none";
+        if (viewRecentFunded) viewRecentFunded.style.display = "block";
+    }
+
+    if (btnRadarView) btnRadarView.addEventListener("click", switchToRadarView);
+    if (btnGlobalInsights) btnGlobalInsights.addEventListener("click", switchToGlobalInsights);
+
     // Trigger initial visual load with mock oximeter values
     updateGauge(0.607);
     renderNodeMap("10912502", defaultOverlap);
@@ -258,6 +292,9 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.disabled = true;
         spinner.style.display = "inline-block";
         resultsContainer.classList.add("loading");
+        
+        // Auto-switch to radar view on submission
+        switchToRadarView();
         
         // Morph Dynamic Island to loading state
         dynamicIsland.className = "dynamic-island loading";

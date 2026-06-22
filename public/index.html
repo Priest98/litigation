@@ -40,15 +40,19 @@
 
             <!-- Expanded context buttons -->
             <div class="island-expanded">
-                <div class="header-btn active" title="Network Graph View">
+                <div class="header-btn" id="btn-radar-view" title="Radar Analysis View">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/>
                         <line x1="8" y1="8" x2="10" y2="10"/><line x1="14" y1="14" x2="16" y2="16"/>
                     </svg>
                 </div>
-                <div class="header-btn" title="Filter View">
+                <div class="header-btn active" id="btn-global-insights" title="Global Insights (News & Funding)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
                     </svg>
                 </div>
                 <span class="island-badge" id="island-badge">US-10912502</span>
@@ -90,99 +94,188 @@
                 </svg>
             </div>
 
-            <!-- Left Floating HUD: Patent Info -->
-            <aside class="hud-panel hud-left patent-details-card">
-                <div class="hud-header">
-                    <span class="hud-icon">📄</span>
-                    <h3>Patent Information</h3>
+            <!-- Left Floating HUD: Patent Info & Insights -->
+            <aside class="hud-panel hud-left patent-details-card" id="panel-left-container">
+                <!-- VIEW 1: Active Analysis Patent Info -->
+                <div class="hud-view-content" id="view-patent-info" style="display: none;">
+                    <div class="hud-header">
+                        <span class="hud-icon">📄</span>
+                        <h3>Patent Information</h3>
+                    </div>
+                    
+                    <div class="hud-body">
+                        <div class="meta-item">
+                            <span class="meta-label">ID Number</span>
+                            <span class="meta-val highlight-gold" id="res-patent-number">US-10912502</span>
+                        </div>
+                        
+                        <div class="meta-item">
+                            <span class="meta-label">Issue Date</span>
+                            <span class="meta-val" id="res-patent-date">2021-02-09</span>
+                        </div>
+                        
+                        <div class="meta-item">
+                            <span class="meta-label">Data Source</span>
+                            <span class="meta-val badge-source" id="res-patent-source">Local Secure Cache</span>
+                        </div>
+
+                        <div class="hud-divider"></div>
+
+                        <div class="patent-title-box">
+                            <span class="meta-label">Patent Title</span>
+                            <h4 id="res-patent-title">User-worn device for noninvasive measurement of physiological parameters</h4>
+                        </div>
+
+                        <div class="patent-abstract-box">
+                            <span class="meta-label">Abstract Overview</span>
+                            <p id="res-patent-abstract">A user-worn device configured to noninvasively measure a physiological parameter of a user, such as pulse rate and oxygen saturation. The wearable device includes a pulse oximetry sensor that transmits light of at least two wavelengths through tissue and detects the attenuated light to calculate blood oxygen levels.</p>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="hud-body">
-                    <div class="meta-item">
-                        <span class="meta-label">ID Number</span>
-                        <span class="meta-val highlight-gold" id="res-patent-number">US-10912502</span>
+
+                <!-- VIEW 2: IP Litigation News -->
+                <div class="hud-view-content" id="view-ip-news" style="display: block;">
+                    <div class="hud-header">
+                        <span class="hud-icon">📰</span>
+                        <h3>IP Litigation News</h3>
                     </div>
                     
-                    <div class="meta-item">
-                        <span class="meta-label">Issue Date</span>
-                        <span class="meta-val" id="res-patent-date">2021-02-09</span>
-                    </div>
-                    
-                    <div class="meta-item">
-                        <span class="meta-label">Data Source</span>
-                        <span class="meta-val badge-source" id="res-patent-source">Local Secure Cache</span>
-                    </div>
-
-                    <div class="hud-divider"></div>
-
-                    <div class="patent-title-box">
-                        <span class="meta-label">Patent Title</span>
-                        <h4 id="res-patent-title">User-worn device for noninvasive measurement of physiological parameters</h4>
-                    </div>
-
-                    <div class="patent-abstract-box">
-                        <span class="meta-label">Abstract Overview</span>
-                        <p id="res-patent-abstract">A user-worn device configured to noninvasively measure a physiological parameter of a user, such as pulse rate and oxygen saturation. The wearable device includes a pulse oximetry sensor that transmits light of at least two wavelengths through tissue and detects the attenuated light to calculate blood oxygen levels.</p>
+                    <div class="hud-body">
+                        <div class="insight-item">
+                            <div class="insight-meta">
+                                <span class="insight-badge-cat">MKT INSIGHTS</span>
+                                <span class="insight-date">June 18, 2026</span>
+                            </div>
+                            <h4 class="insight-title">Delaware Court Reports Surge in AI Patent Filings</h4>
+                            <p class="insight-summary">A 34% year-over-year increase in machine learning patent litigation has been recorded, primarily driven by semiconductor claims.</p>
+                        </div>
+                        
+                        <div class="insight-item">
+                            <div class="insight-meta">
+                                <span class="insight-badge-cat">CASE LAW</span>
+                                <span class="insight-date">June 12, 2026</span>
+                            </div>
+                            <h4 class="insight-title">Stripe Resolves Key Checkout Dispute for Undisclosed Sum</h4>
+                            <p class="insight-summary">The dispute over online checkout APIs concludes, signaling a shifting landscape in e-commerce software claims.</p>
+                        </div>
+                        
+                        <div class="insight-item">
+                            <div class="insight-meta">
+                                <span class="insight-badge-cat">LIT FINANCE</span>
+                                <span class="insight-date">May 29, 2026</span>
+                            </div>
+                            <h4 class="insight-title">New Funder Thresholds Set at 70% Success Probability</h4>
+                            <p class="insight-summary">Leading IP capital firms announce stricter merit criteria, raising the consensus benchmark for patent case backing.</p>
+                        </div>
                     </div>
                 </div>
             </aside>
 
-            <!-- Right Floating HUD: Committee & Verdict -->
-            <aside class="hud-panel hud-right verdict-and-agents-card">
-                <!-- Litigation Committee Header -->
-                <div class="hud-header">
-                    <span class="hud-icon">⚖️</span>
-                    <h3>Litigation Committee</h3>
-                </div>
-                
-                <!-- Verdict Display Body -->
-                <div class="verdict-body">
-                    <div class="horizontal-gauge-container">
-                        <span class="meta-label">Consensus Score</span>
-                        <div class="gauge-value-large" id="res-success-prob">60.7%</div>
-                        
-                        <div class="merits-bar-wrapper">
-                            <!-- Pointer indicator -->
-                            <div class="merits-pointer" id="merits-pointer" style="left: 60.7%;">
-                                <span class="pointer-arrow">▼</span>
+            <!-- Right Floating HUD: Committee & Recent Funded -->
+            <aside class="hud-panel hud-right verdict-and-agents-card" id="panel-right-container">
+                <!-- VIEW 1: Active Analysis Committee & Verdict -->
+                <div class="hud-view-content" id="view-committee-verdict" style="display: none;">
+                    <!-- Litigation Committee Header -->
+                    <div class="hud-header">
+                        <span class="hud-icon">⚖️</span>
+                        <h3>Litigation Committee</h3>
+                    </div>
+                    
+                    <!-- Verdict Display Body -->
+                    <div class="verdict-body">
+                        <div class="horizontal-gauge-container">
+                            <span class="meta-label">Consensus Score</span>
+                            <div class="gauge-value-large" id="res-success-prob">60.7%</div>
+                            
+                            <div class="merits-bar-wrapper">
+                                <!-- Pointer indicator -->
+                                <div class="merits-pointer" id="merits-pointer" style="left: 60.7%;">
+                                    <span class="pointer-arrow">▼</span>
+                                </div>
+                                <!-- Segmented track -->
+                                <div class="merits-track">
+                                    <div class="track-segment segment-1"></div>
+                                    <div class="track-segment segment-2"></div>
+                                    <div class="track-segment segment-3"></div>
+                                    <div class="track-segment segment-4"></div>
+                                </div>
                             </div>
-                            <!-- Segmented track -->
-                            <div class="merits-track">
-                                <div class="track-segment segment-1"></div>
-                                <div class="track-segment segment-2"></div>
-                                <div class="track-segment segment-3"></div>
-                                <div class="track-segment segment-4"></div>
+                        </div>
+                        
+                        <div class="verdict-info-spacious">
+                            <span class="verdict-badge verdict-reject" id="res-recommendation">REJECT / REVISE CASE</span>
+                            <p class="verdict-verbiage" id="res-verdict-verbiage">Case viability does not meet the minimum funder threshold (70.0%).</p>
+                        </div>
+                    </div>
+
+                    <div class="hud-divider"></div>
+
+                    <!-- Diligence Header -->
+                    <div class="hud-header secondary-header">
+                        <span class="hud-icon">🧠</span>
+                        <h3>Diligence Panel</h3>
+                    </div>
+
+                    <!-- Multi-Agent Diligence Body -->
+                    <div class="agents-body">
+                        <p class="section-desc">Consensus weighted contributions:</p>
+                        <div class="agents-list" id="res-agents-list">
+                            <!-- Loaded dynamically via JS -->
+                            <div class="agent-item">
+                                <div class="agent-header">
+                                    <span class="agent-title">Prior Art Analyst (Validity)</span>
+                                    <span class="agent-weight: 35%">Weight: 35%</span>
+                                </div>
+                                <div class="agent-body">
+                                    <span class="agent-score">Score: 55%</span>
+                                    <p class="agent-finding">Low risk of invalidity. Claims are novel and structurally distinct from older art.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="verdict-info-spacious">
-                        <span class="verdict-badge verdict-reject" id="res-recommendation">REJECT / REVISE CASE</span>
-                        <p class="verdict-verbiage" id="res-verdict-verbiage">Case viability does not meet the minimum funder threshold (70.0%).</p>
+                </div>
+
+                <!-- VIEW 2: Recently Funded Patents -->
+                <div class="hud-view-content" id="view-recent-funded" style="display: block;">
+                    <div class="hud-header">
+                        <span class="hud-icon">💰</span>
+                        <h3>Recently Funded</h3>
                     </div>
-                </div>
-
-                <div class="hud-divider"></div>
-
-                <!-- Diligence Header -->
-                <div class="hud-header secondary-header">
-                    <span class="hud-icon">🧠</span>
-                    <h3>Diligence Panel</h3>
-                </div>
-
-                <!-- Multi-Agent Diligence Body -->
-                <div class="agents-body">
-                    <p class="section-desc">Consensus weighted contributions:</p>
-                    <div class="agents-list" id="res-agents-list">
-                        <!-- Loaded dynamically via JS -->
-                        <div class="agent-item">
-                            <div class="agent-header">
-                                <span class="agent-title">Prior Art Analyst (Validity)</span>
-                                <span class="agent-weight">Weight: 35%</span>
+                    
+                    <div class="hud-body">
+                        <div class="funded-item">
+                            <div class="funded-header-row">
+                                <span class="funded-id">US-10892912-B2</span>
+                                <span class="funded-amount">$2.4M</span>
                             </div>
-                            <div class="agent-body">
-                                <span class="agent-score">Score: 55%</span>
-                                <p class="agent-finding">Low risk of invalidity. Claims are novel and structurally distinct from older art.</p>
+                            <h4 class="funded-title">Distributed ledger protocol for securing digital transactions</h4>
+                            <div class="funded-footer-row">
+                                <span class="funded-consensus">Consensus: 89.2%</span>
+                                <span class="funded-investor">IP Edge Group</span>
+                            </div>
+                        </div>
+                        
+                        <div class="funded-item">
+                            <div class="funded-header-row">
+                                <span class="funded-id">EP-3920102-A1</span>
+                                <span class="funded-amount">$1.8M</span>
+                            </div>
+                            <h4 class="funded-title">System for neural network inference execution on microcontrollers</h4>
+                            <div class="funded-footer-row">
+                                <span class="funded-consensus">Consensus: 81.4%</span>
+                                <span class="funded-investor">Omni IP Finance</span>
+                            </div>
+                        </div>
+                        
+                        <div class="funded-item">
+                            <div class="funded-header-row">
+                                <span class="funded-id">US-11029482-B1</span>
+                                <span class="funded-amount">$3.1M</span>
+                            </div>
+                            <h4 class="funded-title">Electro-optical sensor arrays for remote environmental mapping</h4>
+                            <div class="funded-footer-row">
+                                <span class="funded-consensus">Consensus: 76.5%</span>
+                                <span class="funded-investor">Vectis IP Fund</span>
                             </div>
                         </div>
                     </div>
