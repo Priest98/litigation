@@ -7,9 +7,13 @@ import re
 from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from collections import defaultdict
+import time
 
 app = Flask(__name__, static_folder='../public', static_url_path='')
+
+# Simple in-memory request throttle per client IP
+ip_request_history = defaultdict(list)
 
 # Mock competitor products for semantic mapping
 COMPETITOR_PRODUCTS = [
@@ -204,6 +208,30 @@ def run_committee_debate(overlap_results):
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
+    # Rate Limiting: 15 requests per minute per IP address
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    now = time.time()
+    ip_request_history[client_ip] = [t for t in ip_request_history[client_ip] if now - t < 60]
+    
+    if len(ip_request_history[client_ip]) >= 15:
+        return jsonify({
+            "patent": {
+                "number": "",
+                "title": "Rate Limit Exceeded",
+                "abstract": "Too many requests. Please wait 60 seconds before trying again.",
+                "date": "N/A",
+                "source": "System Throttle"
+            },
+            "overlap_results": [],
+            "committee_verdict": {
+                "success_probability": 0.0,
+                "recommendation": "REJECT / REVISE CASE",
+                "agent_reviews": []
+            }
+        }), 429
+
+    ip_request_history[client_ip].append(now)
+
     # CORS preflight handling is done automatically by Vercel, but we ensure JSON content
     req_data = request.get_json() or {}
     patent_number = req_data.get("patent_number", "10912502").strip()
