@@ -13,115 +13,134 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Glow Background Orbs -->
     <div class="glow-container">
         <div class="glow-orb orb-1"></div>
         <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
     </div>
 
+    <!-- Outer Wrapper -->
     <div class="app-container">
+        
         <!-- Header -->
         <header class="app-header">
             <div class="logo-container">
                 <span class="logo-icon">⚖️</span>
                 <h1 class="logo-title">LitiShield <span class="accent-text">IP</span></h1>
+                <span class="platform-badge">Control Platform</span>
             </div>
-            <p class="logo-subtitle">Automated Patent Merits & Infringement Radar</p>
+            
+            <!-- Context Header Badges -->
+            <div class="header-actions">
+                <div class="header-btn active" title="Network Graph View">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <circle cx="6" cy="6" r="3"/>
+                        <circle cx="18" cy="18" r="3"/>
+                        <line x1="8" y1="8" x2="10" y2="10"/>
+                        <line x1="14" y1="14" x2="16" y2="16"/>
+                    </svg>
+                </div>
+                <div class="header-btn" title="Filter View">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                    </svg>
+                </div>
+                <div class="header-btn" title="New Simulation">
+                    <span class="btn-simulation-text">+ New Simulation</span>
+                </div>
+            </div>
         </header>
 
-        <!-- Search Section -->
-        <section class="search-section card">
-            <h2 class="section-title-hidden">Analyze Patent</h2>
-            <p class="search-label">Analyze litigation risk by entering a USPTO Patent Number:</p>
-            <form id="analysis-form" class="search-form">
-                <div class="input-wrapper">
-                    <span class="input-icon">🔍</span>
-                    <input 
-                        type="text" 
-                        id="patent-number-input" 
-                        placeholder="e.g. 10912502" 
-                        required 
-                        autocomplete="off"
-                        aria-label="Patent Number Input"
-                    >
-                </div>
-                <button type="submit" id="submit-button" class="btn btn-primary">
-                    <span class="btn-text">Run Radar Analysis</span>
-                    <span class="spinner" id="btn-spinner"></span>
-                </button>
-            </form>
-            <p class="demo-tip">Tip: Press Enter or click Run to analyze default oximeter case (US-10912502).</p>
-        </section>
+        <!-- Main Workspace Area -->
+        <div class="workspace-area" id="dashboard-results">
+            
+            <!-- SVG Network Graph -->
+            <div class="network-graph-container" id="node-network-container">
+                <svg id="network-svg" width="100%" height="100%" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice">
+                    <!-- Filters for glowing orbs and lines -->
+                    <defs>
+                        <radialGradient id="patent-glow-grad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+                            <stop offset="30%" stop-color="#ffe29a" stop-opacity="0.8"/>
+                            <stop offset="70%" stop-color="#f5d06c" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#f5d06c" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="rose-glow-grad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+                            <stop offset="40%" stop-color="#ff5e84" stop-opacity="0.6"/>
+                            <stop offset="100%" stop-color="#ff5e84" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="purple-glow-grad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+                            <stop offset="40%" stop-color="#a388ff" stop-opacity="0.6"/>
+                            <stop offset="100%" stop-color="#a388ff" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="green-glow-grad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+                            <stop offset="40%" stop-color="#10b981" stop-opacity="0.6"/>
+                            <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                    <g id="svg-connections"></g>
+                    <g id="svg-nodes"></g>
+                </svg>
+            </div>
 
-        <!-- Main Dashboard (Initially Hidden or Mock State) -->
-        <main class="dashboard-grid" id="dashboard-results">
-            <!-- Left Column: Patent & Products -->
-            <div class="grid-column">
-                <!-- Patent Details -->
-                <section class="card patent-details-card">
-                    <div class="card-header">
-                        <span class="card-icon">📄</span>
-                        <h3>Patent Details</h3>
-                    </div>
-                    <div class="patent-meta">
+            <!-- Left Floating HUD: Patent Info -->
+            <aside class="hud-panel hud-left patent-details-card">
+                <div class="hud-header">
+                    <span class="hud-icon">📄</span>
+                    <h3>Patent Information</h3>
+                </div>
+                
+                <div class="hud-body">
+                    <div class="meta-row">
                         <div class="meta-item">
-                            <span class="meta-label">Patent Number</span>
-                            <span class="meta-val" id="res-patent-number">US-10912502</span>
+                            <span class="meta-label">ID Number</span>
+                            <span class="meta-val highlight-gold" id="res-patent-number">US-10912502</span>
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">Issue Date</span>
                             <span class="meta-val" id="res-patent-date">2021-02-09</span>
                         </div>
+                    </div>
+                    
+                    <div class="meta-row">
                         <div class="meta-item">
-                            <span class="meta-label">Source Database</span>
+                            <span class="meta-label">Data Source</span>
                             <span class="meta-val badge-source" id="res-patent-source">Local Secure Cache</span>
                         </div>
                     </div>
+
+                    <div class="hud-divider"></div>
+
                     <div class="patent-title-box">
                         <span class="meta-label">Patent Title</span>
                         <h4 id="res-patent-title">User-worn device for noninvasive measurement of physiological parameters</h4>
                     </div>
+
                     <div class="patent-abstract-box">
                         <span class="meta-label">Abstract Overview</span>
                         <p id="res-patent-abstract">A user-worn device configured to noninvasively measure a physiological parameter of a user, such as pulse rate and oxygen saturation. The wearable device includes a pulse oximetry sensor that transmits light of at least two wavelengths through tissue and detects the attenuated light to calculate blood oxygen levels.</p>
                     </div>
-                </section>
+                </div>
+            </aside>
 
-                <!-- Product Overlap -->
-                <section class="card product-overlap-card">
-                    <div class="card-header">
-                        <span class="card-icon">📊</span>
-                        <h3>Product Infringement Overlap</h3>
-                    </div>
-                    <p class="card-desc">Cosine similarity analysis using TF-IDF text vectorization against target commercial products:</p>
-                    <div class="products-list" id="res-products-list">
-                        <!-- Mock products loaded via JS -->
-                        <div class="product-item">
-                            <div class="product-info">
-                                <span class="product-name">Apple Watch Series 9</span>
-                                <span class="threat-badge threat-critical">CRITICAL</span>
-                            </div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar-fill" style="width: 34.62%;"></div>
-                            </div>
-                            <span class="score-pct">34.62% Overlap</span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Right Column: Committee & Agents -->
-            <div class="grid-column">
-                <!-- Committee Verdict -->
-                <section class="card verdict-card">
-                    <div class="card-header">
-                        <span class="card-icon">⚖️</span>
-                        <h3>Litigation Committee Verdict</h3>
+            <!-- Right Floating HUD: Committee & Verdict -->
+            <aside class="hud-panel hud-right verdict-and-agents-card">
+                <!-- Litigation Committee Verdict Section -->
+                <div class="verdict-section">
+                    <div class="hud-header">
+                        <span class="hud-icon">⚖️</span>
+                        <h3>Litigation Committee</h3>
                     </div>
                     
                     <div class="verdict-display">
                         <div class="gauge-container">
                             <svg class="progress-ring" width="120" height="120">
-                                <circle class="progress-ring-bg" stroke="#1f2937" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
+                                <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
                                 <circle class="progress-ring-circle" id="verdict-gauge" stroke="#10b981" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314.15" stroke-dashoffset="123.46"/>
                             </svg>
                             <div class="gauge-value" id="res-success-prob">60.7%</div>
@@ -132,17 +151,19 @@
                             <p class="verdict-verbiage" id="res-verdict-verbiage">Case viability does not meet the minimum funder threshold (70.0%).</p>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <!-- Agent Reviews -->
-                <section class="card agents-card">
-                    <div class="card-header">
-                        <span class="card-icon">🧠</span>
-                        <h3>Multi-Agent Diligence Panel</h3>
+                <div class="hud-divider"></div>
+
+                <!-- Multi-Agent Diligence Panel -->
+                <div class="agents-section">
+                    <div class="hud-header">
+                        <span class="hud-icon">🧠</span>
+                        <h3>Diligence Panel</h3>
                     </div>
-                    <p class="card-desc">Individual agent evaluations contributing to final consensus rating:</p>
+                    <p class="section-desc">Consensus weighted contributions:</p>
                     <div class="agents-list" id="res-agents-list">
-                        <!-- Loaded via JS -->
+                        <!-- Loaded dynamically via JS -->
                         <div class="agent-item">
                             <div class="agent-header">
                                 <span class="agent-title">Prior Art Analyst (Validity)</span>
@@ -150,13 +171,51 @@
                             </div>
                             <div class="agent-body">
                                 <span class="agent-score">Score: 55%</span>
-                                <p class="agent-finding">Low risk of invalidity. Patent claims are novel and well-distinguished from prior public filings.</p>
+                                <p class="agent-finding">Low risk of invalidity. Claims are novel and structurally distinct from older art.</p>
                             </div>
                         </div>
                     </div>
-                </section>
-            </div>
-        </main>
+                </div>
+            </aside>
+
+            <!-- Hidden list for compatibility with script.js -->
+            <div id="res-products-list" style="display: none;"></div>
+
+        </div>
+
+        <!-- Bottom Prompt Panel -->
+        <footer class="prompt-section">
+            <form id="analysis-form" class="prompt-form">
+                <div class="prompt-bar">
+                    <!-- Badges on the left of input -->
+                    <div class="prompt-badges">
+                        <span class="prompt-badge">⚖️ litigation-radar</span>
+                        <span class="prompt-badge-action">+3</span>
+                    </div>
+                    
+                    <input 
+                        type="text" 
+                        id="patent-number-input" 
+                        placeholder="Analyze patent e.g. 10912502 or EP3852621B1..." 
+                        required 
+                        autocomplete="off"
+                        aria-label="Patent Number Input"
+                    >
+                    
+                    <button type="submit" id="submit-button" class="btn-prompt-send" aria-label="Send Analysis">
+                        <!-- Spinner inside button -->
+                        <span class="spinner" id="btn-spinner"></span>
+                        <!-- Send arrow icon -->
+                        <svg class="send-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <line x1="22" y1="2" x2="11" y2="13"/>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                        </svg>
+                    </button>
+                </div>
+                <p class="prompt-subtext">Automated Multi-Agent Patent Litigation Merits Evaluation Platform</p>
+            </form>
+        </footer>
+
     </div>
 
     <!-- Script -->

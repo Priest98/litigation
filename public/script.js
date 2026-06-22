@@ -21,9 +21,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const resVerdictVerbiage = document.getElementById("res-verdict-verbiage");
     const resAgentsList = document.getElementById("res-agents-list");
 
+    // SVG Network elements
+    const svgConnections = document.getElementById("svg-connections");
+    const svgNodes = document.getElementById("svg-nodes");
+
     // Circular Progress Settings
     const circleRadius = 50;
     const circumference = 2 * Math.PI * circleRadius; // ~314.159
+
+    // Default mock data for initial load
+    const defaultOverlap = [
+        { product_name: "Apple Watch Series 9", similarity: 0.3462, threat_level: "CRITICAL" },
+        { product_name: "Masimo W1 Medical Watch", similarity: 0.1812, threat_level: "LOW" },
+        { product_name: "Samsung Galaxy Watch", similarity: 0.0182, threat_level: "LOW" },
+        { product_name: "Tesla Model Y Vehicle", similarity: 0.0, threat_level: "LOW" }
+    ];
 
     function updateGauge(probability) {
         // Update circular svg stroke offset
@@ -37,33 +49,156 @@ document.addEventListener("DOMContentLoaded", () => {
         if (probability >= 0.70) {
             verdictGauge.style.stroke = "#10b981"; // Emerald
         } else {
-            verdictGauge.style.stroke = "#ef4444"; // Rose
+            verdictGauge.style.stroke = "#ff5e84"; // Rose
         }
     }
 
-    function renderProducts(overlapResults) {
-        resProductsList.innerHTML = "";
-        
-        overlapResults.forEach(item => {
-            const pct = (item.similarity * 100).toFixed(2);
-            
-            let threatClass = "threat-low";
-            if (item.threat_level === "CRITICAL") threatClass = "threat-critical";
-            if (item.threat_level === "HIGH") threatClass = "threat-high";
+    // Dynamic SVG Network Map Renderer
+    function renderNodeMap(patentId, overlapResults) {
+        // Clear SVG layers
+        svgConnections.innerHTML = "";
+        svgNodes.innerHTML = "";
 
-            const productHtml = `
-                <div class="product-item">
-                    <div class="product-info">
-                        <span class="product-name">${item.product_name}</span>
-                        <span class="threat-badge ${threatClass}">${item.threat_level}</span>
-                    </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
-                    </div>
-                    <span class="score-pct">${pct}% Overlap</span>
-                </div>
-            `;
-            resProductsList.insertAdjacentHTML("beforeend", productHtml);
+        const cx = 500;
+        const cy = 300;
+
+        // Render Central Node (Target Patent)
+        const centralGlow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        centralGlow.setAttribute("cx", cx);
+        centralGlow.setAttribute("cy", cy);
+        centralGlow.setAttribute("r", 50);
+        centralGlow.setAttribute("fill", "url(#patent-glow-grad)");
+        centralGlow.setAttribute("class", "pulse-circle");
+        svgNodes.appendChild(centralGlow);
+
+        const centralDashedRing = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        centralDashedRing.setAttribute("cx", cx);
+        centralDashedRing.setAttribute("cy", cy);
+        centralDashedRing.setAttribute("r", 35);
+        centralDashedRing.setAttribute("stroke", "rgba(245, 208, 108, 0.4)");
+        centralDashedRing.setAttribute("stroke-width", "1.5");
+        centralDashedRing.setAttribute("stroke-dasharray", "4 3");
+        centralDashedRing.setAttribute("fill", "none");
+        centralDashedRing.setAttribute("class", "central-glow-ring");
+        svgNodes.appendChild(centralDashedRing);
+
+        const centralCore = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        centralCore.setAttribute("cx", cx);
+        centralCore.setAttribute("cy", cy);
+        centralCore.setAttribute("r", 15);
+        centralCore.setAttribute("fill", "#f5d06c");
+        svgNodes.appendChild(centralCore);
+
+        // Format central label (add US- prefix if numeric only)
+        let displayPatentId = patentId;
+        if (/^\d+$/.test(displayPatentId)) {
+            displayPatentId = "US-" + displayPatentId;
+        } else if (/^[A-Za-z]{2}\d+/.test(displayPatentId)) {
+            const country = displayPatentId.slice(0, 2);
+            const rest = displayPatentId.slice(2);
+            if (!rest.startsWith("-")) {
+                displayPatentId = country.toUpperCase() + "-" + rest;
+            }
+        }
+
+        const centralText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        centralText.setAttribute("x", cx);
+        centralText.setAttribute("y", cy + 42);
+        centralText.setAttribute("text-anchor", "middle");
+        centralText.setAttribute("fill", "#f5d06c");
+        centralText.setAttribute("font-size", "14");
+        centralText.setAttribute("font-weight", "700");
+        centralText.setAttribute("font-family", "Outfit, sans-serif");
+        centralText.textContent = displayPatentId;
+        svgNodes.appendChild(centralText);
+
+        // Render Satellite Nodes (Competitor Products)
+        const numNodes = overlapResults.length;
+        overlapResults.forEach((item, index) => {
+            // Distribute angles evenly (tilt by -45deg so it lays out in a clean cross)
+            const angle = (index * 2 * Math.PI) / numNodes - Math.PI / 4;
+            
+            // Radius distance is inversely proportional to similarity (closer = higher threat)
+            const r = 240 - (item.similarity * 140);
+            
+            const sx = cx + r * Math.cos(angle);
+            const sy = cy + r * Math.sin(angle);
+
+            // Determine color and glow gradients based on threat level
+            let color = "#10b981"; // Emerald (Low)
+            let glowGrad = "url(#green-glow-grad)";
+            if (item.threat_level === "CRITICAL" || item.similarity > 0.45) {
+                color = "#ff5e84"; // Rose (Critical)
+                glowGrad = "url(#rose-glow-grad)";
+            } else if (item.threat_level === "HIGH" || item.similarity > 0.25) {
+                color = "#a388ff"; // Purple (High)
+                glowGrad = "url(#purple-glow-grad)";
+            }
+
+            // 1. Render Connection Path (Line)
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute("x1", cx);
+            line.setAttribute("y1", cy);
+            line.setAttribute("x2", sx);
+            line.setAttribute("y2", sy);
+            line.setAttribute("stroke", color);
+            line.setAttribute("stroke-width", (1.5 + item.similarity * 3).toFixed(2));
+            line.setAttribute("stroke-opacity", (0.15 + item.similarity * 0.65).toFixed(2));
+            line.setAttribute("class", "link-line");
+            // Reverse animation direction for high threat values
+            if (item.similarity > 0.25) {
+                line.style.animationDirection = "reverse";
+            }
+            svgConnections.appendChild(line);
+
+            // 2. Render Satellite Node Wrapper (G Group for hover scaling)
+            const nodeGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            nodeGroup.setAttribute("class", "satellite-node");
+            
+            // Glow Circle
+            const glowCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            glowCircle.setAttribute("cx", sx);
+            glowCircle.setAttribute("cy", sy);
+            glowCircle.setAttribute("r", 28);
+            glowCircle.setAttribute("fill", glowGrad);
+            glowCircle.setAttribute("opacity", "0.4");
+            nodeGroup.appendChild(glowCircle);
+
+            // Solid Core
+            const coreCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            coreCircle.setAttribute("cx", sx);
+            coreCircle.setAttribute("cy", sy);
+            coreCircle.setAttribute("r", 9);
+            coreCircle.setAttribute("fill", color);
+            coreCircle.setAttribute("stroke", "rgba(255,255,255,0.2)");
+            coreCircle.setAttribute("stroke-width", "2");
+            nodeGroup.appendChild(coreCircle);
+
+            // Product Name Label
+            const textName = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textName.setAttribute("x", sx);
+            textName.setAttribute("y", sy - 18);
+            textName.setAttribute("text-anchor", "middle");
+            textName.setAttribute("fill", "#f1f5f9");
+            textName.setAttribute("font-size", "12");
+            textName.setAttribute("font-weight", "500");
+            textName.setAttribute("font-family", "Outfit, sans-serif");
+            textName.textContent = item.product_name;
+            nodeGroup.appendChild(textName);
+
+            // Similarity Score Label
+            const textScore = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            textScore.setAttribute("x", sx);
+            textScore.setAttribute("y", sy + 22);
+            textScore.setAttribute("text-anchor", "middle");
+            textScore.setAttribute("fill", color);
+            textScore.setAttribute("font-size", "11");
+            textScore.setAttribute("font-weight", "700");
+            textScore.setAttribute("font-family", "JetBrains Mono, monospace");
+            textScore.textContent = `${(item.similarity * 100).toFixed(1)}%`;
+            nodeGroup.appendChild(textScore);
+
+            svgNodes.appendChild(nodeGroup);
         });
     }
 
@@ -88,8 +223,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Trigger gauge animation for default mock values on initial load
+    // Trigger initial visual load with mock oximeter values
     updateGauge(0.607);
+    renderNodeMap("10912502", defaultOverlap);
 
     // Form Submission
     form.addEventListener("submit", async (e) => {
@@ -109,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: json = JSON.stringify({ patent_number: patentNumber })
+                body: JSON.stringify({ patent_number: patentNumber })
             });
 
             if (!response.ok) {
@@ -138,16 +274,16 @@ document.addEventListener("DOMContentLoaded", () => {
             // Update source styling based on live vs cached
             if (data.patent.source.includes("Live")) {
                 resPatentSource.className = "meta-val badge-source";
-                resPatentSource.style.borderColor = "#10b981";
-                resPatentSource.style.color = "#10b981";
+                resPatentSource.style.borderColor = "#06b6d4";
+                resPatentSource.style.color = "#06b6d4";
             } else {
                 resPatentSource.className = "meta-val badge-source";
                 resPatentSource.style.borderColor = "";
                 resPatentSource.style.color = "";
             }
 
-            // 2. Update Product Overlap List
-            renderProducts(data.overlap_results);
+            // 2. Render SVG Network Graph Node Map
+            renderNodeMap(data.patent.number, data.overlap_results);
 
             // 3. Update Gauge and Committee Verdict
             const prob = data.committee_verdict.success_probability;
