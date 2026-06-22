@@ -38,18 +38,33 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     function updateGauge(probability) {
-        // Update circular svg stroke offset
-        const offset = circumference - (probability * circumference);
-        verdictGauge.style.strokeDashoffset = offset;
+        // Update circular svg stroke offset if present
+        if (verdictGauge) {
+            const offset = circumference - (probability * circumference);
+            verdictGauge.style.strokeDashoffset = offset;
+            
+            // Color updates
+            if (probability >= 0.70) {
+                verdictGauge.style.stroke = "#10b981"; // Emerald
+            } else {
+                verdictGauge.style.stroke = "#ff5e84"; // Rose
+            }
+        }
         
         // Update text
-        resSuccessProb.textContent = `${(probability * 100).toFixed(1)}%`;
-        
-        // Color updates
-        if (probability >= 0.70) {
-            verdictGauge.style.stroke = "#10b981"; // Emerald
-        } else {
-            verdictGauge.style.stroke = "#ff5e84"; // Rose
+        if (resSuccessProb) {
+            resSuccessProb.textContent = `${(probability * 100).toFixed(1)}%`;
+        }
+
+        // Update horizontal pointer if present
+        const pointer = document.getElementById("merits-pointer");
+        if (pointer) {
+            pointer.style.left = `${probability * 100}%`;
+            if (probability >= 0.70) {
+                pointer.style.color = "#10b981"; // Emerald
+            } else {
+                pointer.style.color = "#ff5e84"; // Rose
+            }
         }
     }
 
@@ -223,6 +238,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Dynamic Island elements
+    const dynamicIsland = document.getElementById("dynamic-island");
+    const islandStatusText = document.getElementById("island-status-text");
+    const islandBadge = document.getElementById("island-badge");
+
     // Trigger initial visual load with mock oximeter values
     updateGauge(0.607);
     renderNodeMap("10912502", defaultOverlap);
@@ -238,6 +258,10 @@ document.addEventListener("DOMContentLoaded", () => {
         submitBtn.disabled = true;
         spinner.style.display = "inline-block";
         resultsContainer.classList.add("loading");
+        
+        // Morph Dynamic Island to loading state
+        dynamicIsland.className = "dynamic-island loading";
+        islandStatusText.textContent = "Analyzing Patent...";
 
         try {
             const response = await fetch("/api/analyze", {
@@ -301,8 +325,27 @@ document.addEventListener("DOMContentLoaded", () => {
             // 4. Update Agents list
             renderAgents(data.committee_verdict.agent_reviews);
 
+            // Morph Dynamic Island to success state and revert after 4 seconds
+            dynamicIsland.className = "dynamic-island success";
+            islandStatusText.textContent = `Consensus Score: ${(prob * 100).toFixed(0)}%`;
+            islandBadge.textContent = displayName;
+            
+            setTimeout(() => {
+                dynamicIsland.className = "dynamic-island";
+                islandStatusText.textContent = "System Idle";
+            }, 4000);
+
         } catch (error) {
             console.error(error);
+            // Morph Dynamic Island to error state and revert after 4 seconds
+            dynamicIsland.className = "dynamic-island error";
+            islandStatusText.textContent = "Analysis Failed";
+            
+            setTimeout(() => {
+                dynamicIsland.className = "dynamic-island";
+                islandStatusText.textContent = "System Idle";
+            }, 4000);
+            
             alert("Error running patent analysis. Please check your connection or try again.");
         } finally {
             // Restore States

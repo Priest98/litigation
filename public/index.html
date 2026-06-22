@@ -24,32 +24,34 @@
     <div class="app-container">
         
         <!-- Header -->
-        <header class="app-header">
-            <div class="logo-container">
+        <!-- Dynamic Island Header -->
+        <header class="dynamic-island" id="dynamic-island">
+            <!-- Logo Section -->
+            <div class="island-logo">
                 <span class="logo-icon">⚖️</span>
-                <h1 class="logo-title">LitiShield <span class="accent-text">IP</span></h1>
-                <span class="platform-badge">Control Platform</span>
+                <span class="logo-title">LitiShield <span class="accent-text">IP</span></span>
             </div>
             
-            <!-- Context Header Badges -->
-            <div class="header-actions">
+            <!-- Live status / Actions panel -->
+            <div class="island-status-panel">
+                <span class="status-dot"></span>
+                <span class="status-text" id="island-status-text">System Idle</span>
+            </div>
+
+            <!-- Expanded context buttons -->
+            <div class="island-expanded">
                 <div class="header-btn active" title="Network Graph View">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"/>
-                        <circle cx="6" cy="6" r="3"/>
-                        <circle cx="18" cy="18" r="3"/>
-                        <line x1="8" y1="8" x2="10" y2="10"/>
-                        <line x1="14" y1="14" x2="16" y2="16"/>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/>
+                        <line x1="8" y1="8" x2="10" y2="10"/><line x1="14" y1="14" x2="16" y2="16"/>
                     </svg>
                 </div>
                 <div class="header-btn" title="Filter View">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
                     </svg>
                 </div>
-                <div class="header-btn" title="New Simulation">
-                    <span class="btn-simulation-text">+ New Simulation</span>
-                </div>
+                <span class="island-badge" id="island-badge">US-10912502</span>
             </div>
         </header>
 
@@ -58,7 +60,7 @@
             
             <!-- SVG Network Graph -->
             <div class="network-graph-container" id="node-network-container">
-                <svg id="network-svg" width="100%" height="100%" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid slice">
+                <svg id="network-svg" width="100%" height="100%" viewBox="0 0 1000 650" preserveAspectRatio="xMidYMid meet">
                     <!-- Filters for glowing orbs and lines -->
                     <defs>
                         <radialGradient id="patent-glow-grad" cx="50%" cy="50%" r="50%">
@@ -96,22 +98,19 @@
                 </div>
                 
                 <div class="hud-body">
-                    <div class="meta-row">
-                        <div class="meta-item">
-                            <span class="meta-label">ID Number</span>
-                            <span class="meta-val highlight-gold" id="res-patent-number">US-10912502</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Issue Date</span>
-                            <span class="meta-val" id="res-patent-date">2021-02-09</span>
-                        </div>
+                    <div class="meta-item">
+                        <span class="meta-label">ID Number</span>
+                        <span class="meta-val highlight-gold" id="res-patent-number">US-10912502</span>
                     </div>
                     
-                    <div class="meta-row">
-                        <div class="meta-item">
-                            <span class="meta-label">Data Source</span>
-                            <span class="meta-val badge-source" id="res-patent-source">Local Secure Cache</span>
-                        </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Issue Date</span>
+                        <span class="meta-val" id="res-patent-date">2021-02-09</span>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <span class="meta-label">Data Source</span>
+                        <span class="meta-val badge-source" id="res-patent-source">Local Secure Cache</span>
                     </div>
 
                     <div class="hud-divider"></div>
@@ -130,37 +129,49 @@
 
             <!-- Right Floating HUD: Committee & Verdict -->
             <aside class="hud-panel hud-right verdict-and-agents-card">
-                <!-- Litigation Committee Verdict Section -->
-                <div class="verdict-section">
-                    <div class="hud-header">
-                        <span class="hud-icon">⚖️</span>
-                        <h3>Litigation Committee</h3>
+                <!-- Litigation Committee Header -->
+                <div class="hud-header">
+                    <span class="hud-icon">⚖️</span>
+                    <h3>Litigation Committee</h3>
+                </div>
+                
+                <!-- Verdict Display Body -->
+                <div class="verdict-body">
+                    <div class="horizontal-gauge-container">
+                        <span class="meta-label">Consensus Score</span>
+                        <div class="gauge-value-large" id="res-success-prob">60.7%</div>
+                        
+                        <div class="merits-bar-wrapper">
+                            <!-- Pointer indicator -->
+                            <div class="merits-pointer" id="merits-pointer" style="left: 60.7%;">
+                                <span class="pointer-arrow">▼</span>
+                            </div>
+                            <!-- Segmented track -->
+                            <div class="merits-track">
+                                <div class="track-segment segment-1"></div>
+                                <div class="track-segment segment-2"></div>
+                                <div class="track-segment segment-3"></div>
+                                <div class="track-segment segment-4"></div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="verdict-display">
-                        <div class="gauge-container">
-                            <svg class="progress-ring" width="120" height="120">
-                                <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.05)" stroke-width="8" fill="transparent" r="50" cx="60" cy="60"/>
-                                <circle class="progress-ring-circle" id="verdict-gauge" stroke="#10b981" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" stroke-dasharray="314.15" stroke-dashoffset="123.46"/>
-                            </svg>
-                            <div class="gauge-value" id="res-success-prob">60.7%</div>
-                        </div>
-                        <div class="verdict-info">
-                            <span class="meta-label">Consensus Score</span>
-                            <span class="verdict-badge verdict-reject" id="res-recommendation">REJECT / REVISE CASE</span>
-                            <p class="verdict-verbiage" id="res-verdict-verbiage">Case viability does not meet the minimum funder threshold (70.0%).</p>
-                        </div>
+                    <div class="verdict-info-spacious">
+                        <span class="verdict-badge verdict-reject" id="res-recommendation">REJECT / REVISE CASE</span>
+                        <p class="verdict-verbiage" id="res-verdict-verbiage">Case viability does not meet the minimum funder threshold (70.0%).</p>
                     </div>
                 </div>
 
                 <div class="hud-divider"></div>
 
-                <!-- Multi-Agent Diligence Panel -->
-                <div class="agents-section">
-                    <div class="hud-header">
-                        <span class="hud-icon">🧠</span>
-                        <h3>Diligence Panel</h3>
-                    </div>
+                <!-- Diligence Header -->
+                <div class="hud-header secondary-header">
+                    <span class="hud-icon">🧠</span>
+                    <h3>Diligence Panel</h3>
+                </div>
+
+                <!-- Multi-Agent Diligence Body -->
+                <div class="agents-body">
                     <p class="section-desc">Consensus weighted contributions:</p>
                     <div class="agents-list" id="res-agents-list">
                         <!-- Loaded dynamically via JS -->
